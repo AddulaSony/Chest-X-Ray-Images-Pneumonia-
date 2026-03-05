@@ -4,7 +4,7 @@ import tensorflow as tf
 from PIL import Image
 
 # import model from training file
-from Chest_X_Ray_Images_pneumonia import model
+from model import model
 
 st.set_page_config(page_title="Pneumonia Detection", layout="centered")
 
