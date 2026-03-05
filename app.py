@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 from PIL import Image
-from pneumonia import load_model, predict_image
+from model import load_model, predict_image
 import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Pneumonia Detection", layout="centered")
