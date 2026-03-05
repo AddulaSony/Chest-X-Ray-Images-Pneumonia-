@@ -3,60 +3,65 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 
-# Load trained model
-model = tf.keras.models.load_model("Chest_X_Ray_Images_(Pneumonia).py")
+# import model from training file
+from chest_x_ray_images_(pneumonia) import model
+
+st.set_page_config(page_title="Pneumonia Detection", layout="centered")
 
 st.title("🩺 Pneumonia Detection from Chest X-Ray")
 st.subheader("AI Assisted Screening Tool")
 
 st.write("Upload a chest X-ray image to check pneumonia risk.")
 
-# File upload
-uploaded_file = st.file_uploader("Upload X-ray Image", type=["jpg","png"])
+uploaded_file = st.file_uploader(
+    "Upload X-ray Image",
+    type=["jpg","png","jpeg"]
+)
 
 if uploaded_file is not None:
 
-    image = Image.open(uploaded_file).convert("L")
-    st.image(image, caption="Uploaded X-ray", use_column_width=True)
+    image = Image.open(uploaded_file)
 
-    resized = image.resize((150,150))
-    img_array = np.array(resized)/255.0
-    img_array = img_array.reshape(1,150,150,1)
+    st.subheader("Uploaded Image")
+    st.image(image, use_column_width=True)
+
+    # preprocess image
+    img = image.resize((224,224))
+    img = np.array(img)
+
+    if img.shape[-1] == 4:
+        img = img[:,:,:3]
+
+    img = img/255.0
+    img = np.expand_dims(img, axis=0)
 
     if st.button("🔍 Analyze Image"):
 
-        prediction = model.predict(img_array)[0][0]
+        prediction = model.predict(img)[0][0]
 
         pneumonia_prob = float(prediction)
         normal_prob = 1 - pneumonia_prob
 
         if pneumonia_prob > 0.5:
             label = "PNEUMONIA"
-            color = "red"
+            st.error("⚠️ Pneumonia Detected")
         else:
             label = "NORMAL"
-            color = "green"
+            st.success("✅ Normal Chest X-ray")
 
-        st.markdown("### Prediction Result")
+        st.write("### Prediction Result")
 
-        st.markdown(
-            f"<h3 style='color:{color};'>Status: {label}</h3>",
-            unsafe_allow_html=True
-        )
+        st.write(f"**Status:** {label}")
+        st.write(f"**Pneumonia Probability:** {pneumonia_prob*100:.2f}%")
+        st.write(f"**Normal Probability:** {normal_prob*100:.2f}%")
 
-        st.write(f"Confidence: {max(pneumonia_prob,normal_prob)*100:.2f}%")
-
-        st.subheader("Probability")
-
-        st.write(f"Normal: {normal_prob*100:.2f}%")
-        st.write(f"Pneumonia: {pneumonia_prob*100:.2f}%")
+        st.write("### Risk Level")
 
         if pneumonia_prob > 0.8:
-            risk = "HIGH"
+            st.error("⚠️ HIGH RISK")
         elif pneumonia_prob > 0.5:
-            risk = "MODERATE"
+            st.warning("⚠️ MODERATE RISK")
         else:
-            risk = "LOW"
+            st.success("LOW RISK")
 
-        st.warning(f"⚠️ Risk Level: {risk}")
-
+)
