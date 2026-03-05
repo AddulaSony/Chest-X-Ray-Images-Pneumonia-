@@ -64,4 +64,9 @@ if uploaded_file is not None:
         else:
             st.success("LOW RISK")
 
+st.markdown("---")
+
+st.warning(
+"⚠️ This AI tool is for educational purposes only. "
+"Please consult a certified radiologist for diagnosis."
 )
